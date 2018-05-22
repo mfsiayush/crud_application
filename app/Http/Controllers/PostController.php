@@ -1,8 +1,10 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
+use App\Post;
+use Auth;
 
 class PostController extends Controller
 {
@@ -14,6 +16,9 @@ class PostController extends Controller
     public function index()
     {
         //
+        $posts=new Post();
+        $postData=$posts->postData();
+        return view('posts')->with(compact('postData'));    
     }
 
     /**
@@ -24,6 +29,7 @@ class PostController extends Controller
     public function create()
     {
         //
+        return view('create');
     }
 
     /**
@@ -35,6 +41,30 @@ class PostController extends Controller
     public function store(Request $request)
     {
         //
+        // $postData=array(
+        //     'title'=>$request->title,
+        //     'description'=>$request->description
+        // );
+        $this->validate($request,[
+            'title' => 'required|string|max:255|unique:posts',
+            'description' => 'required|string',
+        ]);
+        if(Auth::user()){
+            $post=new Post();
+            $post->title=$request->title;
+            $post->description=$request->description;
+            $post->userID=Auth::user()->id;
+            $post->save();
+
+            return redirect('/posts/create')->with('success', 'Post Created!!');
+            
+        }
+        else{
+            return "Unser not loggedin";
+        }
+
+
+
     }
 
     /**
@@ -46,6 +76,9 @@ class PostController extends Controller
     public function show($id)
     {
         //
+        $post=new Post();
+        $getPost=$post->getPost($id);
+        return view('singlePost')->with(compact('getPost'));
     }
 
     /**
@@ -81,4 +114,15 @@ class PostController extends Controller
     {
         //
     }
+
+    public function byAuthor($author)
+    {
+        //
+        // echo $author;
+        $posts=new Post();
+        $postData=$posts->byAuthor($author);
+        return view('posts')->with(compact('postData')); 
+    }
+
+
 }
