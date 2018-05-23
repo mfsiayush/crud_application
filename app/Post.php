@@ -35,5 +35,39 @@ class Post extends Model
     	return $result;
     }
 
+    public function listings($id){
+        $result = Post::select('posts.id', 'posts.title', 'posts.description', 'posts.created_at','posts.updated_at', 'users.email', 'users.name', 'users.username', 'posts.userID')
+            ->join('users', 'users.id', '=', 'posts.userID')
+            ->where('users.id', $id)
+            ->orderBy('created_at', 'asc')
+            ->get();
+        return $result;
+    }
+    public function postDetails($id, $userID){
+        $getPost = Post::select('posts.id', 'posts.title', 'posts.description', 'posts.created_at','users.email', 'users.name', 'users.username', 'posts.userID')
+            ->join('users', 'users.id', '=', 'posts.userID')
+            ->where('posts.id', $id)
+            ->where('users.id', $userID)
+            ->first();
+        return $getPost;
+    }
+    public function updatePost($data){
+        $updatePost=Post::where('id', $data['id'])
+            ->where('userID', $data['userID'])
+            ->update([
+                'title' => $data['title'],
+                'description' => $data['description'],
+                'updated_at' => now()
+            ]);
+            return $updatePost;
+    }
+
+    public function deletePost($id, $userID){
+        $deteleStatus=Post::where('id', $id)
+        ->where('userID', $userID)
+        ->delete();
+        return $deteleStatus;
+    }
+
     
 }
