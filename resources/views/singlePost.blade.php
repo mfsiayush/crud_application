@@ -22,6 +22,7 @@
               </div>
           @endif
           <!-- Comments Form -->
+          @if(Auth::user())
           <div class="card my-4">
             <h5 class="card-header">Leave a Comment:</h5>
             <div class="card-body">
@@ -48,6 +49,7 @@
               </form>
             </div>
           </div>
+          @endif
 
             <!-- Single Comment -->
           @if(count($postData['commentData']))
