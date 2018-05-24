@@ -15,6 +15,10 @@
                     @endif
                     <table class="table table-hover">
                         <tbody>
+                           <tr>
+                            <th>Profile Picture</th>
+                            <td><img src="{{$userDetails->profilePic}}"/></td>
+                          </tr>
                             <tr>
                             <th>ID</th>
                             <td>{{$userDetails->id}}</td>

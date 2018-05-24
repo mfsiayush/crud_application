@@ -19,10 +19,10 @@ class Post extends Model
     }
 
     public function getPost($id){
-    	$getPost = Post::select('posts.id', 'posts.title', 'posts.description', 'posts.created_at','users.email', 'users.name', 'users.username', 'posts.userID')
+    	$getPost = Post::select('posts.id', 'posts.title', 'posts.description', 'posts.created_at','users.email', 'users.name', 'users.username', 'users.profilePic', 'posts.userID')
 		    ->join('users', 'users.id', '=', 'posts.userID')
 		    ->where('posts.id', $id)
-		    ->get();
+		    ->first();
     	return $getPost;
     }
 

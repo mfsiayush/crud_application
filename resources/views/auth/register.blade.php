@@ -6,7 +6,6 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header">{{ __('Register') }}</div>
-
                 <div class="card-body">
                     <form method="POST" action="{{ route('register') }}">
                         @csrf
@@ -74,14 +73,27 @@
                                 <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required>
                             </div>
                         </div>
+
+                        <!-- <div class="form-group row">
+                            <label for="recaptcha" class="col-md-4 col-form-label text-md-right">{{ __('Recaptcha') }}</label>
+
+                            <div class="col-md-6">
+                                 <div class="g-recaptcha" data-sitekey="6LcrJFsUAAAAABFxN9upVcnRMyXVXyS3Jvb0Z9vC"></div>
+
+                                @if ($errors->has('[g-recaptcha-response'))
+                                    <span class="invalid-feedback">
+                                        <strong>
+                                        {{ $errors->first('[g-recaptcha-response') }}
+                                        </strong>
+                                    </span>
+                                @endif
+                            </div>
+                        </div> -->
                         
 
-                         <div class="form-group row mb-0">
-                            <div class="col-md-6 offset-md-4">
-                                <div class="g-recaptcha" data-sitekey="6Lcj6FoUAAAAAFQoXESqWGr-gmGfpHRNZB7et45H"></div>
-                            </div>
-                        </div>
                         
+                       
+
                         <div class="form-group row mb-0">
                             <div class="col-md-6 offset-md-4">
                                 <button type="submit" class="btn btn-primary">

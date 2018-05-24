@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
 use App\Post;
+use App\Comment;
 use Auth;
 
 class PostController extends Controller
@@ -18,6 +19,7 @@ class PostController extends Controller
         //
         $posts=new Post();
         $postData=$posts->postData();
+
         return view('posts')->with(compact('postData'));    
     }
 
@@ -54,7 +56,7 @@ class PostController extends Controller
             
         }
         else{
-            return "User not loggedin";
+            return redirect('/login');
         }
 
 
@@ -71,8 +73,21 @@ class PostController extends Controller
     {
         //
         $post=new Post();
+        $comment=new Comment();
+
+        $commentData=$comment->getComments($id);
         $getPost=$post->getPost($id);
-        return view('singlePost')->with(compact('getPost'));
+        
+        $postData['getPost']=$getPost;
+        $postData['commentData']=$commentData;
+
+
+        if(count($postData)){
+            return view('singlePost')->with(compact('postData'));
+        }
+        else{
+            return redirect()->route('posts');
+        }
     }
 
     /**
@@ -128,15 +143,20 @@ class PostController extends Controller
     public function destroy($id)
     {
         //
-        $posts=new Post();
-        $deteleStatus=$posts->deletePost($id, Auth::user()->id);
-        if($deteleStatus){
-            $respMsg='Post Deleted!!!';
+        if(Auth::user()){
+            $posts=new Post();
+            $deteleStatus=$posts->deletePost($id, Auth::user()->id);
+            if($deteleStatus){
+                $respMsg='Post Deleted!!!';
+            }
+            else{
+                $respMsg='Unable to delete post!!!';
+            }
+            return redirect()->route('listings')->with('response', $respMsg);
         }
         else{
-            $respMsg='Unable to delete post!!!';
+            return redirect('/login');
         }
-        return redirect()->route('listings')->with('response', $respMsg);
     }
 
     public function byAuthor($author)
@@ -155,7 +175,7 @@ class PostController extends Controller
             return view('listings')->with(compact('getListing'));
         }
         else{
-            echo "please login";
+            return redirect('/login');
         }
     }
 
@@ -164,6 +184,26 @@ class PostController extends Controller
             'title' => 'required|string|max:255|unique:posts',
             'description' => 'required|string',
         ]);
+    }
+
+    public function addComment(Request $request, $id){
+        $this->validate($request,[
+            'message' => 'required|string',
+        ]);
+        if(Auth::user()){
+            $comment=new Comment();
+            $comment->postID=$id;
+            $comment->userID=Auth::user()->id;
+            $comment->message=$request->message;
+            $comment->save();
+
+            return redirect()->route('single', $id)->with('success', 'Comment Added!!');
+            
+        }
+        else{
+            return redirect('/login');
+        }
+
     }
 
 

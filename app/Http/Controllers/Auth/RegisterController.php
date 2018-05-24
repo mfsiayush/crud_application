@@ -7,6 +7,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Http\Request;
+use GuzzleHttp\Client;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Auth\Events\Registered;
 
 class RegisterController extends Controller
 {
@@ -46,12 +50,41 @@ class RegisterController extends Controller
      * @param  array  $data
      * @return \Illuminate\Contracts\Validation\Validator
      */
+
+    public function register(Request $request)
+    {
+
+        $client= new Client();
+        $guzReq = $client->get('https://randomuser.me/api/?inc=picture&noinfo');
+        $guzResp = $guzReq->getBody()->getContents();
+        $imageData=json_decode($guzResp, true);
+        if(count($imageData)){
+            $request['profilePic']=$imageData['results'][0]['picture']['large'];
+        }
+        else{
+            $request['profilePic']='';
+        }
+        $this->validator($request->all())->validate();
+        //
+
+        
+
+        event(new Registered($user = $this->create($request->all())));
+
+        $this->guard()->login($user);
+
+        return $this->registered($request, $user)
+                        ?: redirect($this->redirectPath());
+    }
+
+
     protected function validator(array $data)
     {
         return Validator::make($data, [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'username' => 'required|alpha_dash|max:50|unique:users',
+            'profilePic' => 'string',
             'password' => 'required|string|min:6|confirmed',
         ]);
     }
@@ -68,6 +101,7 @@ class RegisterController extends Controller
             'name' => $data['name'],
             'email' => $data['email'],
             'username'=> $data['username'],
+            'profilePic'=>$data['profilePic'],
             'password' => Hash::make($data['password']),
         ]);
     }
